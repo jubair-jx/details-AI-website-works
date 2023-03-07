@@ -1,26 +1,30 @@
 //get all data from API link using fetch
 
-const getAllData = () => {
+const getAllData = (limit) => {
   fetch("https://openapi.programming-hero.com/api/ai/tools")
     .then((res) => res.json())
 
     .then((data) => {
-      showAllData(data.data.tools.slice(0, 6));
+      showAllData(data.data.tools, limit);
     });
 };
 
-const showAllData = (data) => {
+//show all data with card
+const showAllData = (data, limit) => {
   //get id from HTML
   let mainContainer = document.getElementById("mainContainer");
-
+  //main container card refresh
   mainContainer.innerHTML = "";
 
+  if (limit) {
+    data = data.slice(0, 6);
+  } else {
+    data = data;
+  }
   //load Spinners
   toggleSpinner(false);
 
-  //select See More button
-  document.getElementById("btn-show-all").addEventListener("click", () => {});
-
+  //data loop
   data.forEach((element) => {
     //using object destrucring
     const { image, features, name, published_in, id } = element;
@@ -56,11 +60,10 @@ const showAllData = (data) => {
 
         `;
     mainContainer.appendChild(newTag);
-    // console.log(element);
   });
 };
 
-//spinners functions
+//spinners functions here
 const toggleSpinner = (isLoading) => {
   let loadSpinners = document.getElementById("spinners");
   if (isLoading) {
@@ -89,13 +92,14 @@ const showTheDataModal = (detail) => {
     integrations,
     accuracy,
   } = detail;
+
+  //declare new variable
   let integrationsListItems = "";
   integrations?.forEach((data) => {
     integrationsListItems += `<li>${data}</li>`;
   }),
-    console.log(accuracy.score);
-  //select modal body
-  document.getElementById("modal-details").innerHTML = `
+    //select modal body
+    (document.getElementById("modal-details").innerHTML = `
   <div class="row row-cols-1 row-cols-md-2 g-5 px-4 py-4">
   <div class="col">
   <div class="card" style="background-color: #EB57570D; border: 1px solid #EB5757; width: 370px;">
@@ -157,11 +161,19 @@ const showTheDataModal = (detail) => {
   <div>
     <img src="${image_link[0]}" class="card-img-top" alt="...">
    </div>
-   <div class="" style="position: absolute; top: 25px; left: 185px;">
-    <button class="btn btn-danger rounded-2 px-2 py-1"> ${
-      accuracy.score === null ? "0" : accuracy.score * 100
-    }% accuracy</button>
-   </div>
+
+   <i style="display: ${accuracy.score === null ? "none" : "inline-block"} ">
+   <span id="accuracy-btn" class="btn btn-danger rounded-2 px-2 py-1" style="position: absolute; right: 35px; top:30px;">
+           ${accuracy.score === null ? "" : accuracy.score * 100 + "% accuracy"}
+
+   </span>
+
+</i>
+   <!--  <div class="" style="position: absolute; top: 25px; left: 180px;">
+    <button id="btn" class="btn btn-danger rounded-2  px-2 py-1"> ${
+      accuracy.score === null ? "No" : accuracy.score * 100
+    } % accuracy</button>
+   </div> -->
 </div>
   <div class="card-body mt-3 ">
     <h5 class="card-title text-center">${
@@ -180,9 +192,10 @@ const showTheDataModal = (detail) => {
     </div>
 
   
-  `;
+  `);
 };
-getAllData();
+
+getAllData(6);
 
 //show all card function when click see more button
 let showAll = document.getElementById("show-all");
@@ -191,13 +204,73 @@ const showAllcard = () => {
     .then((res) => res.json())
 
     .then((data) => {
-      showAllData(data.data.tools);
       if (data.length > 6) {
-        data = data.slice(0, 6);
+        showAllData(data.data.tools.slice(0, 6));
         showAll.classList.remove("d-none");
       } else {
+        showAllData(
+          data.data.tools.sort(
+            (a, b) => new Date(a.published_in) - new Date(b.published_in)
+          )
+        );
         showAll.classList.add("d-none");
       }
     });
 };
-//get show all button added
+
+//select sort button
+document
+  .getElementById("sort-date")
+  .addEventListener("click", async function () {
+    let mainContainer = document.getElementById("mainContainer");
+
+    mainContainer.innerHTML = "";
+
+    //load Spinners
+    toggleSpinner(false);
+
+    const res = await fetch(
+      "https://openapi.programming-hero.com/api/ai/tools"
+    );
+    const data = await res.json();
+
+    data.data.tools
+      .slice(0, 6)
+      .sort((a, b) => new Date(a.published_in) - new Date(b.published_in))
+      .forEach((element) => {
+        //using object destrucring
+        const { image, features, name, published_in, id } = element;
+
+        //create a new tag
+        let newTag = document.createElement("div");
+        newTag.classList.add("col");
+        newTag.innerHTML = `
+        <div class="card">
+        <div class ="px-2 py-2"><img src="${image}" class="card-img-top rounded-3" height ="200" width = "50"></div>
+        <div class="card-body">
+          <h4 class="card-title fw-bold">Features</h4>
+        <ol>
+              <li>${features[0]}</li>
+              <li>${features[1]}</li>
+              <li>${features[2]}</li>
+        </ol>
+        <hr>
+      <div class= "d-flex justify-content-between">
+             <div><h5 class ="fw-bold">${name}</h5>
+
+             <div class = "d-flex gap-2 mt-2">
+             <div><img src="img/Frame.png" alt=""></div>
+             <div class = "">${published_in}</div>
+             </div>
+             </div>
+
+            <div class = "mt-3">
+            <img onclick = "fetchDetailsData('${id}')" data-bs-toggle="modal" data-bs-target="#exampleModal"  style="background-color: #FEF7F7;" class = "px-2 rounded-circle py-2"  src="img/far'.png" alt="">
+            </div>
+
+        </div>
+
+        `;
+        mainContainer.appendChild(newTag);
+      });
+  });

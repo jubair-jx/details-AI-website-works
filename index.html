@@ -24,7 +24,7 @@
       
        
 
-        <button class="btn btn-danger px-4 py-3 ">Sort By Date</button>
+        <button id="sort-date" class="btn btn-danger px-4 py-3 ">Sort By Date</button>
        </div>
     </header>
 <!--=============== header part end ===============-->
@@ -56,11 +56,12 @@
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
   <div class="modal-dialog modal-lg modal-dialog-centered"  >
-    <div class="modal-content">
-      <div class="modal-header">
-        
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+    <div  class="modal-content" class="position-relative">
+      <div style="border: 2px solid #d85656 ; color: #fff !important; background: #d85656; border-radius: 50px;"   class="position-absolute top-0 start-100 translate-middle">
+        <button  type="button"   class="btn-close whites" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!--Modal Details tag-->
       <div  id="modal-details" class="modal-body d-flex justify-content-center align-items-center ">
         
       </div>
@@ -68,10 +69,6 @@
     </div>
   </div>
 </div>
-<!-- ===================Modal Part Area==================== -->
-<!-- ===================Modal Part Area==================== -->
-
-
 <!-- ===================Modal Part Area==================== -->
 
     <!-- bootstrap js file -->
